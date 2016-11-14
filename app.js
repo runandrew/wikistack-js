@@ -5,13 +5,25 @@ var bodyParser = require('body-parser');
 var nunjucks = require('nunjucks');
 
 var wikiRouter = require('./routes/wiki');
-app.use('/wiki', wikiRouter);
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 var env = nunjucks.configure('views', {noCache: true});
-app.use(express.static('public')); //file in with proper file
+app.use(express.static('public'));
 
 app.set('view engine', 'html');
 app.engine('html', nunjucks.render);
+
+
+app.use('/wiki', wikiRouter);
+
+ //file in with proper file
+
+app.use(function(err, req, res, next) {
+    console.error(err);
+    res.status(500).send(err);
+})
 
 var models = require('./models');
 
@@ -27,4 +39,3 @@ models.User.sync({})
     });
 })
 .catch(console.error);
-

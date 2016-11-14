@@ -20,14 +20,19 @@ var Page = db.define('page', {
     status: {
         type: Sequelize.ENUM('open', 'closed')
     },
-     date: {
+    date: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW
     }
 },{
-  getterMethods   : {
+  getterMethods: {
     route : function()  { return '/wiki/' + this.urlTitle }
-  }
+  }, 
+    hooks: {
+        beforeValidate: function(page, options) {
+            page.urlTitle = generateUrlTitle(page.title);
+        }
+    }
 });
 
 var User = db.define('user', {
@@ -41,6 +46,14 @@ var User = db.define('user', {
         isEmail: true
     }
 });
+
+function generateUrlTitle (title) {
+  if (title) {
+    return title.replace(/\s+/g, '_').replace(/\W/g, '');
+  } else {
+    return Math.random().toString(36).substring(2, 7);
+  }
+}
 
 module.exports = {
   Page: Page,
